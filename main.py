@@ -28,7 +28,7 @@ def responder_a_eventos():
             for agente in dados.sprites_agentes:
                     agente.disparar()
 
-estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(600, 4, 0.5, player.Player, (2, 1))
+estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(0, 4, 0.5, player.Player, (2, 1))
 estrategia_evolutiva.gerenciador.nova_partida()
 colisoes.colisao = colisoes.Colisoes()
 visualizador.informacoes = visualizador.Visualizador()

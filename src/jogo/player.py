@@ -1,5 +1,5 @@
 from .base import Mob
-from config.configuracoes import randint, pygame, math
+from config.configuracoes import randint, pygame, math, numpy, tela
 from recursos import dados
 from ..rede_neural.rede_neural import RedeNeural
 
@@ -7,34 +7,41 @@ class Player(Mob):
     def __init__(self, vida, dano, real=False):
         Mob.__init__(self, 'recursos/imagens/rocket.png', (1, 1), (124, 335), (0, 0), vida, dano, escala=(30, 110))
 
-        self.rede_neural = RedeNeural([14, 28, 28, 2], ['sigmoid', 'sigmoid', 'sigmoid'], 0, 0.05)
+        self.rede_neural = RedeNeural([4, 8, 8, 3], ['relu', 'relu', 'sigmoid'], 0, 0.05)
 
         self.rect.centerx = randint(100, 500)
         self.rect.centery = randint(500, 600)
 
-        self.image_dir = pygame.transform.rotate(self.image, -10)
-        self.image_esq = pygame.transform.rotate(self.image, 10)
+        self.forca = 0.7
+        self.velocidade_x = 0
+        self.velocidade_y = 0
+        self.angulo_foquete = 90
 
-        self.velocidade = 4
         self.real = real
     
+    def mover(self):
+        if abs(self.velocidade_x) >= 1:
+            self.rect.x += self.velocidade_x
+        if abs(self.velocidade_y) >= 1:
+            self.rect.y += self.velocidade_y
+    
     def mover_esquerda(self):
-        self.velocidade_x -= self.velocidade
-        self.image = self.image_esq
+        self.angulo_foquete += (self.forca * numpy.cos(numpy.deg2rad(30))) % 360
     def mover_direita(self):
-        self.velocidade_x += self.velocidade
-        self.image = self.image_dir
-    def animacao_normal(self):
-        self.image = self.sprites[0]
-    def mover_frente(self):
-        self.velocidade_y -= self.velocidade
-    def mover_tras(self):
-        self.velocidade_y += self.velocidade
+        self.angulo_foquete -= (self.forca * numpy.cos(numpy.deg2rad(30))) % 360
+        
+    def acelerar(self):
 
+        self.velocidade_x += self.forca * numpy.cos(numpy.deg2rad(self.angulo_foquete))
+        self.velocidade_y -= self.forca * numpy.sin(numpy.deg2rad(self.angulo_foquete))
+
+    def gravidade(self):
+        self.velocidade_y += 0.5
+    
     def obter_entradas(self):
         entradas = [self.rect.centerx, self.rect.centery]
         
-        entradas.extend([0] * (14 - len(entradas))) # preenche com 0 oq faltar
+        entradas.extend([0] * (4 - len(entradas))) # preenche com 0 oq faltar
                
         return entradas
 
@@ -49,25 +56,30 @@ class Player(Mob):
                 self.mover_esquerda()
             if output[1]:
                 self.mover_direita()
-            elif output[0] == False and output[1] == False:
-                self.animacao_normal()
-            
-            #if output[2]:
-             #   self.mover_frente()
-            #if output[3]:
-              #  self.mover_tras()
-        
+            if output[2]:
+                self.acelerar()
+
+        else: # temporário (só para saber o angulo de rotação do foquete)
+            fimx = self.rect.centerx + ( numpy.cos(numpy.deg2rad(self.angulo_foquete)) * 100 )
+            fimy = self.rect.centery - ( numpy.sin(numpy.deg2rad(self.angulo_foquete)) * 100 )
+            pygame.draw.line(tela, (255, 000, 255), self.rect.center, (fimx, fimy), 4)
+
+        self.gravidade()
         self.mover()
             
         if self.rect.left < 0:
             self.rect.left = 0
-        if self.rect.right > dados.dimensoes_janela[0]:
+            self.velocidade_x = 0
+        elif self.rect.right > dados.dimensoes_janela[0]:
             self.rect.right = dados.dimensoes_janela[0]
+            self.velocidade_x = 0
         if self.rect.top < 0:
             self.rect.top = 0
-        if self.rect.bottom > dados.dimensoes_janela[1]:
+            self.velocidade_y = 0
+        elif self.rect.bottom > dados.dimensoes_janela[1]:
             self.rect.bottom = dados.dimensoes_janela[1]
-   
+            self.velocidade_y = 0
+        
 
 class Controle:  # criar classe para resolver coisas sobre controle
     def __init__(self):
@@ -94,21 +106,14 @@ class Controle:  # criar classe para resolver coisas sobre controle
     def mover(self):
         if jogador != None:
 
-            parado = True
             # para mover player ao pressionar tecla, ou joystick
             if pygame.key.get_pressed()[pygame.K_a] or pygame.key.get_pressed()[pygame.K_LEFT] or self.eixo_x <= -0.4:
                 jogador.mover_esquerda()
-                parado = False
             if pygame.key.get_pressed()[pygame.K_d] or pygame.key.get_pressed()[pygame.K_RIGHT] or self.eixo_x >= 0.4:
                 jogador.mover_direita()
-                parado = False
-            elif parado:
-                jogador.animacao_normal()
-            
-            if pygame.key.get_pressed()[pygame.K_w] or pygame.key.get_pressed()[pygame.K_UP] or self.eixo_y <= -0.4:
-                jogador.mover_frente()
-            if pygame.key.get_pressed()[pygame.K_s] or pygame.key.get_pressed()[pygame.K_DOWN] or self.eixo_y >= 0.4:
-                jogador.mover_tras()
-
+         
+            if pygame.key.get_pressed()[pygame.K_SPACE] or self.eixo_y <= -0.4:
+                jogador.acelerar()
+        
 controle = Controle()
 jogador = None
