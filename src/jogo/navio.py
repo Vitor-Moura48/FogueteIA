@@ -11,3 +11,4 @@ class Navio(Mob):
     def update(self):
         self.debug()
 
+barco = Navio()

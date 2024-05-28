@@ -1,6 +1,6 @@
 from config.configuracoes import pygame, plano_de_fundo, tela, fps, clock, uniform
 from recursos import dados
-from src.jogo import player, visualizador, navio
+from src.jogo import player, visualizador
 from src.rede_neural import estrategia_evolutiva
 
 
@@ -32,8 +32,6 @@ estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(0, 4, 
 estrategia_evolutiva.gerenciador.nova_partida()
 visualizador.informacoes = visualizador.Visualizador()
 player.jogador = player.Player(2, 1, real=True)
-
-n = navio.Navio()
 
 while True: # loop principal
 

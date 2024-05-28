@@ -2,6 +2,7 @@ from .base import Mob
 from config.configuracoes import randint, pygame, math, numpy, tela, cache
 from recursos import dados
 from ..rede_neural.rede_neural import RedeNeural
+from .navio import barco
 
 class Player(Mob):
     def __init__(self, vida, dano, real=False):
@@ -9,8 +10,8 @@ class Player(Mob):
 
         self.rede_neural = RedeNeural([4, 8, 8, 3], ['relu', 'relu', 'sigmoid'], 0, 0.05)
 
-        self.rect.centerx = randint(100, 500)
-        self.rect.centery = randint(200, 400)
+        self.rect.centerx = randint(barco.rect.left, barco.rect.right)
+        self.rect.bottom = barco.rect.top
 
         self.forca = 0.7
         self.velocidade_x = 0
@@ -20,6 +21,7 @@ class Player(Mob):
         self.real = real
         self.img = self.image
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
+        self.pousado = False
 
     @cache
     def obter_pontos(self, centro, angulo):
@@ -41,12 +43,13 @@ class Player(Mob):
             self.rect.y += self.velocidade_y
     
     def mover_esquerda(self):
-        self.angulo_foquete += (self.forca * numpy.cos(numpy.deg2rad(30))) % 360
+        self.angulo_foquete += (self.forca * numpy.cos(numpy.deg2rad(30)))
+        self.angulo_foquete %= 360
     def mover_direita(self):
-        self.angulo_foquete += (self.forca * numpy.cos(numpy.deg2rad(150))) % 360
+        self.angulo_foquete += (self.forca * numpy.cos(numpy.deg2rad(150)))
+        self.angulo_foquete %= 360
         
     def acelerar(self):
-
         self.velocidade_x += self.forca * numpy.cos(numpy.deg2rad(self.angulo_foquete))
         self.velocidade_y -= self.forca * numpy.sin(numpy.deg2rad(self.angulo_foquete))
 
@@ -60,8 +63,21 @@ class Player(Mob):
                
         return entradas
 
-    def update(self):
+    def conferir_pouso(self):
 
+        for ponto in self.pontos[1:]:
+            if (ponto[0] > barco.rect.left and ponto[0] < barco.rect.right) and ponto[1] >= barco.rect.top:
+                if self.angulo_foquete < 100 and self.angulo_foquete > 80:
+                    if not self.pousado:
+                        self.velocidade_x = 0
+                        self.velocidade_y = 0
+                        return True
+                else:
+                    self.kill()
+        return False
+
+    def update(self):
+    
         if not self.real:
             self.rede_neural.recompensa += 1
             self.rede_neural.definir_entrada(self.obter_entradas())
@@ -75,11 +91,8 @@ class Player(Mob):
                 if output[1]:
                     self.mover_direita()
             
-
-        self.gravidade()
+        self.gravidade() if not self.pousado else None
         self.mover()
-        
-        self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
 
         self.image = pygame.transform.rotate(self.img, self.angulo_foquete - 90)
         self.rect = self.image.get_rect(center=self.rect.center)
@@ -90,6 +103,19 @@ class Player(Mob):
             elif ponto[1] < 0 or ponto[1] > (tela.get_height() - 60):
                 self.kill()
         
+        self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
+        self.pousado = True if self.conferir_pouso() else False
+        
+
+
+
+
+
+
+
+
+
+
 
 class Controle:  # criar classe para resolver coisas sobre controle
     def __init__(self):
