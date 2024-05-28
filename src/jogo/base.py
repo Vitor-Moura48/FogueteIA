@@ -2,7 +2,7 @@ from config.configuracoes import pygame, os, randint, numpy, choice, uniform, te
 from recursos import dados
 
 class Mob(pygame.sprite.Sprite):
-    def __init__(self, caminho, linhas_colunas, dimensoes, inflar, vida, dano=0, random_x=500, escala=None):
+    def __init__(self, caminho, linhas_colunas, dimensoes, inflar, vida=0, dano=0, random_x=500, escala=None):
         pygame.sprite.Sprite.__init__(self)
         dados.sprites.add(self)
     

@@ -2,6 +2,7 @@ import pygame
 import numpy, math, time
 import os
 from random import randint, uniform, choice
+from functools import cache
 
 pygame.init()
 
@@ -12,6 +13,8 @@ largura = 1000
 altura = 600
 
 tela = pygame.display.set_mode((largura, altura), pygame.RESIZABLE)
+
+dimensoes_janela = tela.get_size()
 
 plano_de_fundo = pygame.image.load("recursos/imagens/bg.png")
 
