@@ -5,7 +5,7 @@ from ..rede_neural.rede_neural import RedeNeural
 
 class Player(Mob):
     def __init__(self, vida, dano, real=False):
-        Mob.__init__(self, 'recursos/imagens/rocket.png', (1, 1), (124, 335), (0, 0), vida, dano, escala=(30, 110))
+        Mob.__init__(self, 'recursos/imagens/rocketg.png', (1, 1), (225, 225), (0, 0), vida, dano, escala=(70, 150))
 
         self.rede_neural = RedeNeural([4, 8, 8, 3], ['relu', 'relu', 'sigmoid'], 0, 0.05)
 
@@ -18,6 +18,7 @@ class Player(Mob):
         self.angulo_foquete = 90
 
         self.real = real
+        self.img = self.image
     
     def mover(self):
         if abs(self.velocidade_x) >= 1:
@@ -28,7 +29,7 @@ class Player(Mob):
     def mover_esquerda(self):
         self.angulo_foquete += (self.forca * numpy.cos(numpy.deg2rad(30))) % 360
     def mover_direita(self):
-        self.angulo_foquete -= (self.forca * numpy.cos(numpy.deg2rad(30))) % 360
+        self.angulo_foquete += (self.forca * numpy.cos(numpy.deg2rad(150))) % 360
         
     def acelerar(self):
 
@@ -52,20 +53,20 @@ class Player(Mob):
             self.rede_neural.definir_entrada(self.obter_entradas())
             output = self.rede_neural.obter_saida()
 
-            if output[0]:
-                self.mover_esquerda()
-            if output[1]:
-                self.mover_direita()
             if output[2]:
                 self.acelerar()
-
-        else: # temporário (só para saber o angulo de rotação do foquete)
-            fimx = self.rect.centerx + ( numpy.cos(numpy.deg2rad(self.angulo_foquete)) * 100 )
-            fimy = self.rect.centery - ( numpy.sin(numpy.deg2rad(self.angulo_foquete)) * 100 )
-            pygame.draw.line(tela, (255, 000, 255), self.rect.center, (fimx, fimy), 4)
+                
+                if output[0]:
+                    self.mover_esquerda()
+                if output[1]:
+                    self.mover_direita()
+            
 
         self.gravidade()
         self.mover()
+
+        self.image = pygame.transform.rotate(self.img, self.angulo_foquete - 90)
+        self.rect = self.image.get_rect(center=self.rect.center)
             
         if self.rect.left < 0:
             self.rect.left = 0
@@ -105,15 +106,16 @@ class Controle:  # criar classe para resolver coisas sobre controle
     
     def mover(self):
         if jogador != None:
-
-            # para mover player ao pressionar tecla, ou joystick
-            if pygame.key.get_pressed()[pygame.K_a] or pygame.key.get_pressed()[pygame.K_LEFT] or self.eixo_x <= -0.4:
-                jogador.mover_esquerda()
-            if pygame.key.get_pressed()[pygame.K_d] or pygame.key.get_pressed()[pygame.K_RIGHT] or self.eixo_x >= 0.4:
-                jogador.mover_direita()
-         
             if pygame.key.get_pressed()[pygame.K_SPACE] or self.eixo_y <= -0.4:
                 jogador.acelerar()
+
+                # para mover player ao pressionar tecla, ou joystick
+                if pygame.key.get_pressed()[pygame.K_a] or pygame.key.get_pressed()[pygame.K_LEFT] or self.eixo_x <= -0.4:
+                    jogador.mover_esquerda()
+                if pygame.key.get_pressed()[pygame.K_d] or pygame.key.get_pressed()[pygame.K_RIGHT] or self.eixo_x >= 0.4:
+                    jogador.mover_direita()
+         
+            
         
 controle = Controle()
 jogador = None
