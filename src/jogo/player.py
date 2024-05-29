@@ -17,6 +17,7 @@ class Player(Mob):
         self.velocidade_x = 0
         self.velocidade_y = 0
         self.angulo_foquete = 90
+        self.resistencia_do_ar = 0.01
 
         self.real = real
         self.img = self.image
@@ -76,6 +77,10 @@ class Player(Mob):
                     self.kill()
         return False
 
+    def aplicar_resistencia(self):
+        self.velocidade_x -= self.velocidade_x * self.resistencia_do_ar
+        self.velocidade_y -= self.velocidade_y * self.resistencia_do_ar
+
     def update(self):
     
         if not self.real:
@@ -92,6 +97,7 @@ class Player(Mob):
                     self.mover_direita()
             
         self.gravidade() if not self.pousado else None
+        self.aplicar_resistencia()
         self.mover()
 
         self.image = pygame.transform.rotate(self.img, self.angulo_foquete - 90)
