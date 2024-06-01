@@ -8,10 +8,10 @@ class Player(Mob):
     def __init__(self, vida, dano, real=False):
         Mob.__init__(self, 'recursos/imagens/rocketg.png', (1, 1), (225, 225), (0, 0), vida, dano, escala=(70, 150))
 
-        self.rede_neural = RedeNeural([4, 8, 8, 3], ['relu', 'relu', 'sigmoid'], 0, 0.05)
+        self.rede_neural = RedeNeural([7, 8, 8, 3], ['relu', 'relu', 'sigmoid'], 0, 0.05)
 
         self.rect.centerx = randint(barco.rect.left, barco.rect.right)
-        self.rect.bottom = barco.rect.top
+        self.rect.bottom = randint(50, 450)
 
         self.forca = 0.7
         self.velocidade_x = 0
@@ -23,6 +23,7 @@ class Player(Mob):
         self.img = self.image
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
         self.pousado = False
+        self.index_alvo = 0
 
     @cache
     def obter_pontos(self, centro, angulo):
@@ -58,9 +59,13 @@ class Player(Mob):
         self.velocidade_y += 0.3
     
     def obter_entradas(self):
-        entradas = [self.rect.centerx, self.rect.centery]
+        entradas = [self.velocidade_x, self.velocidade_y, self.angulo_foquete, self.rect.centerx, self.rect.centery]
+
+        for sprite in dados.sprites_alvos:
+            if sprite.indice == self.index_alvo:
+                entradas.extend(sprite.rect.center)
         
-        entradas.extend([0] * (4 - len(entradas))) # preenche com 0 oq faltar
+        entradas.extend([0] * (7 - len(entradas))) # preenche com 0 oq faltar
                
         return entradas
 
@@ -68,10 +73,11 @@ class Player(Mob):
 
         for ponto in self.pontos[1:]:
             if (ponto[0] > barco.rect.left and ponto[0] < barco.rect.right) and ponto[1] >= barco.rect.top:
-                if self.angulo_foquete < 100 and self.angulo_foquete > 80:
+                if self.angulo_foquete < 100 and self.angulo_foquete > 80 and self.velocidade_y < 3:
                     if not self.pousado:
                         self.velocidade_x = 0
                         self.velocidade_y = 0
+                        self.angulo_foquete = 90
                         return True
                 else:
                     self.kill()
@@ -82,8 +88,10 @@ class Player(Mob):
         self.velocidade_y -= self.velocidade_y * self.resistencia_do_ar
 
     def update(self):
+        
     
         if not self.real:
+
             self.rede_neural.recompensa += 1
             self.rede_neural.definir_entrada(self.obter_entradas())
             output = self.rede_neural.obter_saida()
@@ -95,7 +103,7 @@ class Player(Mob):
                     self.mover_esquerda()
                 if output[1]:
                     self.mover_direita()
-            
+
         self.gravidade() if not self.pousado else None
         self.aplicar_resistencia()
         self.mover()
@@ -108,7 +116,11 @@ class Player(Mob):
                 self.kill()
             elif ponto[1] < 0 or ponto[1] > (tela.get_height() - 60):
                 self.kill()
-        
+            
+            for alvo in dados.sprites_alvos:
+                if alvo.rect.collidepoint(ponto):
+                    self.index_alvo += 1
+
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
         self.pousado = True if self.conferir_pouso() else False
         

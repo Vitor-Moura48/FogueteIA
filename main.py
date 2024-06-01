@@ -1,6 +1,6 @@
-from config.configuracoes import pygame, plano_de_fundo, tela, fps, clock, uniform
+from config.configuracoes import pygame, plano_de_fundo, tela, fps, clock, uniform, randint
 from recursos import dados
-from src.jogo import player, visualizador
+from src.jogo import player, visualizador, alvo
 from src.rede_neural import estrategia_evolutiva
 
 
@@ -28,7 +28,9 @@ def responder_a_eventos():
             for agente in dados.sprites_agentes:
                     agente.disparar()
 
-estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(0, 4, 0.5, player.Player, (2, 1))
+for i in range(3):
+    a = alvo.Alvo(i)
+estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(400, 4, 0.5, player.Player, (2, 1))
 estrategia_evolutiva.gerenciador.nova_partida()
 visualizador.informacoes = visualizador.Visualizador()
 player.jogador = player.Player(2, 1, real=True)
