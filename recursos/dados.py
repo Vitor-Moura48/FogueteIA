@@ -7,3 +7,4 @@ sprites_agentes = pygame.sprite.Group()
 sprites_alvos = pygame.sprite.Group()
 
 cenario = 0
+vento = 0

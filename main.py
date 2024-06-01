@@ -12,6 +12,7 @@ def atualizar_objetos():
 
 def finalizar_partida():
     
+    dados.vento = uniform(-0.1, 0.1)
     player.jogador = player.Player(2, 1, real=True)
 
     estrategia_evolutiva.gerenciador.nova_partida()
@@ -30,6 +31,7 @@ def responder_a_eventos():
 
 for i in range(3):
     a = alvo.Alvo(i)
+dados.vento = uniform(-0.1, 0.1)
 estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(500, 4, 0.5, player.Player, (2, 1))
 estrategia_evolutiva.gerenciador.nova_partida()
 visualizador.informacoes = visualizador.Visualizador()
