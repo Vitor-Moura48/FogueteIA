@@ -1,6 +1,6 @@
 from config.configuracoes import pygame, plano_de_fundo, tela, fps, clock, uniform, randint
 from recursos import dados
-from src.jogo import player, visualizador, alvo
+from src.jogo import player, visualizador, alvo, colisoes
 from src.rede_neural import estrategia_evolutiva
 
 
@@ -36,6 +36,7 @@ estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(500, 4
 estrategia_evolutiva.gerenciador.nova_partida()
 visualizador.informacoes = visualizador.Visualizador()
 player.jogador = player.Player(2, 1, real=True)
+colisao = colisoes.Colisoes()
 
 while True: # loop principal
 
@@ -46,6 +47,8 @@ while True: # loop principal
     tela.blit(plano_de_fundo, (0, 0)) # plano de fundo da tela
 
     atualizar_objetos()
+
+    colisao.update()
 
     visualizador.informacoes.update()
 

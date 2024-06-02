@@ -75,23 +75,6 @@ class Player(Mob):
                
         return entradas
 
-    def conferir_pouso(self):
-
-        for ponto in self.pontos[1:]:
-            if (ponto[0] > barco.rect.left and ponto[0] < barco.rect.right) and ponto[1] >= barco.rect.top:
-                if self.angulo_foquete < 100 and self.angulo_foquete > 80 and self.velocidade_y < 3:
-                    if not self.pousado:
-                        self.velocidade_x = 0
-                        self.velocidade_y = 0
-                        self.angulo_foquete = 90
-                        return True
-                    else:
-                        self.frames_parado += 1
-                else:
-                    self.kill()
-        self.frames_parado = 0
-        return False
-
     def aplicar_resistencia(self):
         self.velocidade_x -= self.velocidade_x * self.resistencia_do_ar
         self.velocidade_y -= self.velocidade_y * self.resistencia_do_ar
@@ -127,20 +110,8 @@ class Player(Mob):
         self.image = pygame.transform.rotate(self.img, self.angulo_foquete - 90)
         self.rect = self.image.get_rect(center=self.rect.center)
         
-        for ponto in self.pontos:
-
-            ponto = (ponto[0].item(), ponto[1].item())
-            if ponto[0] < 0 or ponto[0] > tela.get_width():
-                self.kill()
-            elif ponto[1] < 0 or ponto[1] > (tela.get_height() - 60):
-                self.kill()
-            
-            for alvo in dados.sprites_alvos:
-                if alvo.rect.collidepoint(ponto):
-                    self.index_alvo += 1
 
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
-        self.pousado = True if self.conferir_pouso() else False
         
 
 
