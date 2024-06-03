@@ -53,7 +53,7 @@ class Colisoes:
                 
                 self.verificar_colisao(agente)
                 self.verificar_saida(agente)
-                #agente.pousado = True if self.conferir_pouso(agente) else False
+                agente.pousado = True if self.conferir_pouso(agente) else False
             
         try:      
             for ponto in player.jogador.pontos:
@@ -67,5 +67,5 @@ class Colisoes:
                     player.jogador = None
                     break
             
-            #player.jogador.pousado = True if self.conferir_pouso(player.jogador) else False
+            player.jogador.pousado = True if self.conferir_pouso(player.jogador) else False
         except Exception as e: pass
