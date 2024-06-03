@@ -78,7 +78,7 @@ class Player(Mob):
     def aplicar_resistencia(self):
         self.velocidade_x -= self.velocidade_x * self.resistencia_do_ar
         self.velocidade_y -= self.velocidade_y * self.resistencia_do_ar
-        self.velocidade_angular -= self.velocidade_angular * self.resistencia_do_ar * 12
+        self.velocidade_angular -= self.velocidade_angular * self.resistencia_do_ar * 10
     
     def aplicar_vento(self):
         self.velocidade_x += self.vento
