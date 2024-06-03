@@ -31,7 +31,7 @@ class Visualizador:
 
     def update(self):
 
-        self.visualizar_rede()
+        #self.visualizar_rede()
 
         self.contador_frames += 1
         tempo_atual = time.time()

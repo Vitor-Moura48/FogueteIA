@@ -19,7 +19,6 @@ class Navio(Mob):
         self.bloco_colisao.center = self.rect.center
 
     def update(self):
-        self.debug()
         self.atualizar_bloco_colisao()
 
 barco = Navio()

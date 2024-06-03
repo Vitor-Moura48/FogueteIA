@@ -18,7 +18,7 @@ dimensoes_janela = tela.get_size()
 
 plano_de_fundo = pygame.image.load("recursos/imagens/bg.png")
 
-musica = True
+musica = False
 if musica:
     musica_de_fundo = pygame.mixer.Sound("recursos/sons/fundo.wav")
     musica_de_fundo.set_volume(0.5)

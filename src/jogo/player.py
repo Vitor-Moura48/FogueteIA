@@ -44,9 +44,9 @@ class Player(Mob):
     
     def mover(self):
         if abs(self.velocidade_x) >= 1:
-            self.rect.x += self.velocidade_x
+            self.rect.x += int(self.velocidade_x)
         if abs(self.velocidade_y) >= 1:
-            self.rect.y += self.velocidade_y
+            self.rect.y += int(self.velocidade_y)
     
     def mover_esquerda(self, potencia=1):
         self.velocidade_angular += (self.forca * numpy.cos(numpy.deg2rad(30))) * potencia
@@ -85,12 +85,11 @@ class Player(Mob):
 
     def update(self):
         
-    
         if not self.real:
 
             if self.frames_parado > 50:
                 self.kill()
-            self.rede_neural.recompensa += 1
+            self.rede_neural.recompensa -= 1
             self.rede_neural.definir_entrada(self.obter_entradas())
             output = self.rede_neural.obter_saida()
 
@@ -110,11 +109,8 @@ class Player(Mob):
         self.image = pygame.transform.rotate(self.img, self.angulo_foquete - 90)
         self.rect = self.image.get_rect(center=self.rect.center)
         
-
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
         
-
-
 
 
 
