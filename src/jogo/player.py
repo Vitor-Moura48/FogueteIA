@@ -10,8 +10,7 @@ class Player(Mob):
 
         self.rede_neural = RedeNeural([7, 14, 3], ['relu', 'sigmoid'], 0, 0.05)
 
-        self.rect.centerx = randint(barco.rect.left, barco.rect.right)
-        self.rect.bottom = randint(150, 400)
+        self.rect.center = dados.center_agentes
 
         self.forca = 0.7
         self.velocidade_x = 0

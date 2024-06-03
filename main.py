@@ -1,4 +1,4 @@
-from config.configuracoes import pygame, plano_de_fundo, tela, fps, clock, uniform, randint
+from config.configuracoes import pygame, plano_de_fundo, tela, fps, clock, uniform, randint, dimensoes_janela
 from recursos import dados
 from src.jogo import player, visualizador, alvo, colisoes
 from src.rede_neural import estrategia_evolutiva
@@ -13,6 +13,8 @@ def atualizar_objetos():
     dados.vento = uniform(-0.05, 0.05) if uniform(0, 1) > 0.997 else dados.vento
 
 def finalizar_partida():
+
+    dados.center_agentes = (randint(int(dimensoes_janela[0] * 0.1), int(dimensoes_janela[0] * 0.9)), randint(int(dimensoes_janela[1] * 0.3), int(dimensoes_janela[1] * 0.6)))
 
     player.jogador = player.Player(2, 1, real=True)
 
@@ -32,7 +34,7 @@ def responder_a_eventos():
 
 for i in range(3):
     a = alvo.Alvo(i)
-estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(1, 4, 0.5, player.Player, (2, 1))
+estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(10, 4, 0.5, player.Player, (2, 1))
 estrategia_evolutiva.gerenciador.nova_partida()
 visualizador.informacoes = visualizador.Visualizador()
 player.jogador = player.Player(2, 1, real=True)
