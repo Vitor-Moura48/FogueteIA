@@ -8,9 +8,10 @@ class Player(Mob):
     def __init__(self, vida, dano, real=False):
         Mob.__init__(self, 'recursos/imagens/rocketg.png', (1, 1), (225, 225), (0, 0), vida, dano, escala=(70, 150))
 
-        self.rede_neural = RedeNeural([7, 14, 3], ['relu', 'sigmoid'], 0, 0.05)
+        self.rede_neural = RedeNeural([8, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
 
         self.rect.center = dados.center_agentes
+        self.antigo_rect = self.rect
 
         self.forca = 0.7
         self.velocidade_x = 0
@@ -19,6 +20,7 @@ class Player(Mob):
         self.angulo_foquete = randint(80, 100)
         self.resistencia_do_ar = 0.01
         self.vento = dados.vento
+        self.combustivel = 6000 # 2 mim +/-
 
         self.real = real
         self.img = self.image
@@ -64,13 +66,14 @@ class Player(Mob):
         self.velocidade_y += 0.3
     
     def obter_entradas(self):
-        entradas = [self.velocidade_x, self.velocidade_y, self.angulo_foquete, self.rect.centerx, self.rect.centery]
+        entradas = [self.velocidade_x, self.velocidade_y, self.angulo_foquete, self.rect.centerx, self.rect.centery, self.vento]
 
         for sprite in dados.sprites_alvos:
             if sprite.indice == self.index_alvo:
                 entradas.extend(sprite.rect.center)
         
-        entradas.extend([0] * (7 - len(entradas))) # preenche com 0 oq faltar
+        
+        entradas.extend([0] * (8 - len(entradas))) # preenche com 0 oq faltar
                
         return entradas
 
@@ -79,16 +82,23 @@ class Player(Mob):
         self.velocidade_y -= self.velocidade_y * self.resistencia_do_ar
         self.velocidade_angular -= self.velocidade_angular * self.resistencia_do_ar * 10
     
+    def estabilidade_foguete(self):
+        self.angulo_foquete = self.angulo_foquete + (90 - self.angulo_foquete) * 0.01
+    
     def aplicar_vento(self):
         self.velocidade_x += self.vento
 
     def update(self):
         
         if not self.real:
+        
+            if self.rect.center == self.antigo_rect.center:
+                self.frames_parado += 1
+            else:
+                self.frames_parado = 0
 
             if self.frames_parado > 50:
                 self.kill()
-            self.rede_neural.recompensa -= 1
             self.rede_neural.definir_entrada(self.obter_entradas())
             output = self.rede_neural.obter_saida()
 
@@ -102,8 +112,11 @@ class Player(Mob):
 
         self.gravidade() if not self.pousado else None
         self.aplicar_vento()
+        self.estabilidade_foguete()
         self.aplicar_resistencia()
-        self.mover()
+
+        if self.combustivel > 0:
+            self.mover()
 
         self.image = pygame.transform.rotate(self.img, self.angulo_foquete - 90)
         self.rect = self.image.get_rect(center=self.rect.center)

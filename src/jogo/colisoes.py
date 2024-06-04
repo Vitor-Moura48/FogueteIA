@@ -12,18 +12,20 @@ class Colisoes:
         for ponto in objeto.pontos:
             ponto = (ponto[0].item(), ponto[1].item())
             if ponto[0] < 0 or ponto[0] > tela.get_width():
+                objeto.rede_neural.recompensa += objeto.combustivel
                 estrategia_evolutiva.gerenciador.desativar_agente(objeto)
                 objeto.kill()
                 break
             elif ponto[1] < 0 or ponto[1] > (tela.get_height() - 60):
+                objeto.rede_neural.recompensa += objeto.combustivel
                 estrategia_evolutiva.gerenciador.desativar_agente(objeto)
                 objeto.kill()
                 break
             
             for alvo in dados.sprites_alvos:
-                if alvo.rect.collidepoint(ponto):
+                if alvo.rect.collidepoint(ponto) and alvo.indice == objeto.index_alvo:
                     objeto.index_alvo += 1
-                    objeto.rede_neural.recompensa += 1000
+                    objeto.rede_neural.recompensa += 2000
     
     def conferir_pouso(self, objeto):
 
@@ -35,17 +37,17 @@ class Colisoes:
                         objeto.velocidade_y = 0
                         objeto.angulo_foquete = 90
                         return True
-                    else:
-                        objeto.frames_parado += 1
+
                 else:
+                    objeto.rede_neural.recompensa += objeto.combustivel
                     estrategia_evolutiva.gerenciador.desativar_agente(objeto)
                     objeto.kill()
                     break
-        objeto.frames_parado = 0
         return False
        
     def verificar_saida(self, objeto):
         if objeto.rect.top > dados.dimensoes_janela[1] or objeto.rect.right < 0 or objeto.rect.left > dados.dimensoes_janela[0]:
+            objeto.rede_neural.recompensa += objeto.combustivel
             estrategia_evolutiva.gerenciador.desativar_agente(objeto)
             objeto.kill()
             
