@@ -13,7 +13,7 @@ class Player(Mob):
         self.rect.center = dados.center_agentes
         self.antigo_rect = self.rect
 
-        self.forca = 0.7
+        self.forca = 0.5
         self.velocidade_x = 0
         self.velocidade_y = 0
         self.velocidade_angular = 0
@@ -66,7 +66,7 @@ class Player(Mob):
         self.velocidade_y += 0.3
     
     def obter_entradas(self):
-        entradas = [self.velocidade_x, self.velocidade_y, self.angulo_foquete, self.rect.centerx, self.rect.centery, self.vento]
+        entradas = [self.velocidade_x, self.velocidade_y, (self.angulo_foquete - 90) / 180, self.rect.centerx, self.rect.centery, self.vento]
 
         for sprite in dados.sprites_alvos:
             if sprite.indice == self.index_alvo:
@@ -123,9 +123,6 @@ class Player(Mob):
         
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
         
-
-
-
 
 
 
