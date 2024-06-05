@@ -15,7 +15,7 @@ class Navio(Mob):
         
     def atualizar_bloco_colisao(self):
         
-        pygame.draw.rect(tela, (255, 0, 0), self.bloco_colisao, 2)
+        #pygame.draw.rect(tela, (255, 0, 0), self.bloco_colisao, 2)
         self.bloco_colisao.center = self.rect.center
 
     def update(self):

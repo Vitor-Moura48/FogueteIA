@@ -8,7 +8,7 @@ class Player(Mob):
     def __init__(self, vida, dano, real=False):
         Mob.__init__(self, 'recursos/imagens/rocketg.png', (1, 1), (225, 225), (0, 0), vida, dano, escala=(70, 150))
 
-        self.rede_neural = RedeNeural([7, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
+        self.rede_neural = RedeNeural([8, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
 
         self.rect.center = dados.center_agentes
         self.antigo_rect = self.rect
@@ -20,6 +20,7 @@ class Player(Mob):
         self.angulo_foquete = randint(80, 100)
         self.resistencia_do_ar = 0.01
         self.vento = dados.vento
+        self.max_combustivel = 2000
         self.combustivel = 2000
 
         self.real = real
@@ -78,8 +79,9 @@ class Player(Mob):
         distancia_angulo /= 180
 
         vento_normalizado = self.vento / dados.max_vento
+        combustivel_normalizado = self.combustivel / self.max_combustivel
 
-        entradas = [velocidade_x_normalizada, velocidade_y_normalizada, velocidade_angular_normalizada, distancia_angulo, vento_normalizado]
+        entradas = [velocidade_x_normalizada, velocidade_y_normalizada, velocidade_angular_normalizada, distancia_angulo, vento_normalizado, combustivel_normalizado]
 
         for sprite in dados.sprites_alvos:
             if sprite.indice == self.index_alvo:
@@ -87,7 +89,7 @@ class Player(Mob):
                 distancia_y_normalizada = (self.rect.centery - sprite.rect.centery) / tela.get_size()[1]
                 entradas.extend([distancia_x_normalizada, distancia_y_normalizada])
         
-        entradas.extend([0] * (7 - len(entradas))) # preenche com 0 oq faltar
+        entradas.extend([0] * (8 - len(entradas))) # preenche com 0 oq faltar
                
         return entradas
 
@@ -97,7 +99,7 @@ class Player(Mob):
         self.velocidade_angular -= self.velocidade_angular * self.resistencia_do_ar * 10
     
     def estabilidade_foguete(self):
-        self.angulo_foquete = self.angulo_foquete + (90 - self.angulo_foquete) * 0.01
+        self.angulo_foquete = self.angulo_foquete + (90 - self.angulo_foquete) * 0.005
     
     def aplicar_vento(self):
         self.velocidade_x += self.vento
@@ -105,7 +107,6 @@ class Player(Mob):
     def update(self):
         
         if not self.real:
-            print(self.combustivel)
         
             if self.rect.center == self.antigo_rect.center:
                 self.frames_parado += 1
@@ -118,20 +119,19 @@ class Player(Mob):
             output = self.rede_neural.obter_saida()
 
             if output[2]:
-                self.acelerar(self.rede_neural.estado_atual_da_rede[2] * 2)
+                if self.combustivel > 0:
+                    self.acelerar(self.rede_neural.estado_atual_da_rede[2] * 2)
                 
-                if output[0]:
-                    self.mover_esquerda(self.rede_neural.estado_atual_da_rede[0] * 2)
-                if output[1]:
-                    self.mover_direita(self.rede_neural.estado_atual_da_rede[1] * 2)
+                    if output[0]:
+                        self.mover_esquerda(self.rede_neural.estado_atual_da_rede[0] * 2)
+                    if output[1]:
+                        self.mover_direita(self.rede_neural.estado_atual_da_rede[1] * 2)
 
         self.gravidade() if not self.pousado else None
         self.aplicar_vento()
         self.estabilidade_foguete()
         self.aplicar_resistencia()
-
-        if self.combustivel > 0:
-            self.mover()
+        self.mover()
 
         self.image = pygame.transform.rotate(self.img, self.angulo_foquete - 90)
         self.rect = self.image.get_rect(center=self.rect.center)

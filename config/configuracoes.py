@@ -6,7 +6,7 @@ from functools import cache
 
 pygame.init()
 
-fps = 60
+fps = 600
 clock = pygame.time.Clock()
 
 largura = 1000
