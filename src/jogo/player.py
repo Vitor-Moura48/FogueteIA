@@ -28,7 +28,7 @@ class Player(Mob):
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
         self.pousado = False
         self.index_alvo = 0
-        self.frames_parado = 0
+        self.frames_fora = 0
 
     @cache
     def obter_pontos(self, centro, angulo):
@@ -108,13 +108,11 @@ class Player(Mob):
         
         if not self.real:
         
-            if self.rect.center == self.antigo_rect.center:
-                self.frames_parado += 1
+            if self.rect.center == self.antigo_rect.center or self.rect.bottom > dados.dimensoes_janela[1] or self.rect.right < 0 or self.rect.left > dados.dimensoes_janela[0]:
+                self.frames_fora += 1
             else:
-                self.frames_parado = 0
+                self.frames_fora = 0
 
-            if self.frames_parado > 50:
-                self.kill()
             self.rede_neural.definir_entrada(self.obter_entradas())
             output = self.rede_neural.obter_saida()
 
