@@ -8,7 +8,7 @@ class Player(Mob):
     def __init__(self, vida, dano, real=False):
         Mob.__init__(self, 'recursos/imagens/rocketg.png', (1, 1), (225, 225), (0, 0), vida, dano, escala=(70, 150))
 
-        self.rede_neural = RedeNeural([8, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
+        self.rede_neural = RedeNeural([7, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
 
         self.rect.center = dados.center_agentes
         self.antigo_rect = self.rect
@@ -20,7 +20,7 @@ class Player(Mob):
         self.angulo_foquete = randint(80, 100)
         self.resistencia_do_ar = 0.01
         self.vento = dados.vento
-        self.combustivel = 6000 # 2 mim +/-
+        self.combustivel = 2000
 
         self.real = real
         self.img = self.image
@@ -61,19 +61,33 @@ class Player(Mob):
     def acelerar(self, potencia=1):
         self.velocidade_x += self.forca * numpy.cos(numpy.deg2rad(self.angulo_foquete)) * potencia
         self.velocidade_y -= self.forca * numpy.sin(numpy.deg2rad(self.angulo_foquete)) * potencia
+        self.combustivel -= 1
 
     def gravidade(self):
         self.velocidade_y += 0.3
     
     def obter_entradas(self):
-        entradas = [self.velocidade_x, self.velocidade_y, (self.angulo_foquete - 90) / 180, self.rect.centerx, self.rect.centery, self.vento]
+        
+        velocidade_x_normalizada = self.velocidade_x / 16
+        velocidade_y_normalizada = self.velocidade_x / 32
+        velocidade_angular_normalizada = self.velocidade_angular / 8
+
+        distancia_angulo = (self.angulo_foquete - 90)
+        if distancia_angulo > 180:
+            distancia_angulo = 360 - distancia_angulo
+        distancia_angulo /= 180
+
+        vento_normalizado = self.vento / dados.max_vento
+
+        entradas = [velocidade_x_normalizada, velocidade_y_normalizada, velocidade_angular_normalizada, distancia_angulo, vento_normalizado]
 
         for sprite in dados.sprites_alvos:
             if sprite.indice == self.index_alvo:
-                entradas.extend(sprite.rect.center)
+                distancia_x_normalizada = (self.rect.centerx - sprite.rect.centerx) / tela.get_size()[0]
+                distancia_y_normalizada = (self.rect.centery - sprite.rect.centery) / tela.get_size()[1]
+                entradas.extend([distancia_x_normalizada, distancia_y_normalizada])
         
-        
-        entradas.extend([0] * (8 - len(entradas))) # preenche com 0 oq faltar
+        entradas.extend([0] * (7 - len(entradas))) # preenche com 0 oq faltar
                
         return entradas
 
@@ -91,6 +105,7 @@ class Player(Mob):
     def update(self):
         
         if not self.real:
+            print(self.combustivel)
         
             if self.rect.center == self.antigo_rect.center:
                 self.frames_parado += 1
