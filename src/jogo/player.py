@@ -1,21 +1,21 @@
 from .base import Mob
 from config.configuracoes import randint, pygame, math, numpy, tela, cache, uniform
 from recursos import dados
-from ..rede_neural.rede_neural import RedeNeural
+#from ..rede_neural.rede_neural import RedeNeural
 from .navio import barco
 
 class Player(Mob):
     def __init__(self, vida, dano, real=False):
         Mob.__init__(self, 'recursos/imagens/rocketg.png', (1, 1), (225, 225), (0, 0), vida, dano, escala=(70, 150))
 
-        self.rede_neural = RedeNeural([8, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
+        #self.rede_neural = RedeNeural([8, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
 
         self.rect.center = dados.center_agentes
         self.antigo_rect = self.rect
 
         self.forca = 0.5
-        self.velocidade_x = 0
-        self.velocidade_y = 0
+        self.velocidade_x = 1
+        self.velocidade_y = 1
         self.velocidade_angular = 0
         self.angulo_foquete = randint(80, 100)
         self.resistencia_do_ar = 0.01
@@ -65,8 +65,8 @@ class Player(Mob):
         self.combustivel -= 1
 
     def gravidade(self):
-        self.velocidade_y += 0.3
-    
+        self.velocidade_y += 0.15
+   
     def obter_entradas(self):
         
         velocidade_x_normalizada = self.velocidade_x / 16
