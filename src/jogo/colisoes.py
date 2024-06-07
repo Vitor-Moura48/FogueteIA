@@ -43,15 +43,15 @@ class Colisoes:
     # função para chamar as funções de colisão a cada iteração
     def update(self):
         if len(estrategia_evolutiva.gerenciador.agentes) > 0:
-            for agente in estrategia_evolutiva.gerenciador.agentes[:]:
-                self.verificar_colisao(agente)
-            for agente in estrategia_evolutiva.gerenciador.agentes[:]:
-                agente.pousado = True if self.conferir_pouso(agente) else False
-            for agente in estrategia_evolutiva.gerenciador.agentes[:]:
-                if agente.frames_fora > 100:
-                    agente.rede_neural.recompensa += agente.combustivel
-                    estrategia_evolutiva.gerenciador.desativar_agente(agente)
-                    agente.kill()
+             for agente in estrategia_evolutiva.gerenciador.agentes[:]:
+                 self.verificar_colisao(agente)
+             for agente in estrategia_evolutiva.gerenciador.agentes[:]:
+                 agente.pousado = True if self.conferir_pouso(agente) else False
+             for agente in estrategia_evolutiva.gerenciador.agentes[:]:
+                 if agente.frames_fora > 100:
+                     agente.rede_neural.recompensa += agente.combustivel
+                     estrategia_evolutiva.gerenciador.desativar_agente(agente)
+                     agente.kill()
 
         try:
             if player.jogador.rect.bottom > (tela.get_height() - 40):

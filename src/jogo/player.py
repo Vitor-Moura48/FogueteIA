@@ -30,6 +30,14 @@ class Player(Mob):
         self.index_alvo = 0
         self.frames_fora = 0
 
+        # Carregar a sprite sheet dos propulsores
+        self.caminho_do_exhaust = pygame.image.load('recursos/imagens/rocket_exhaust.png').convert_alpha()
+        self.exhaust_frames = self.carregar_frames_exhaust(self.caminho_do_exhaust, 4, 5) #carrega os frames com as linhas e colunas
+
+        self.current_exhaust_frame = 0
+        self.exhaust_frame_delay = 5  # controla a velocidade da animação
+        self.exhaust_frame_counter = 0
+
     @cache
     def obter_pontos(self, centro, angulo):
         
@@ -63,6 +71,10 @@ class Player(Mob):
         self.velocidade_x += self.forca * numpy.cos(numpy.deg2rad(self.angulo_foquete)) * potencia
         self.velocidade_y -= self.forca * numpy.sin(numpy.deg2rad(self.angulo_foquete)) * potencia
         self.combustivel -= 1
+
+        self.exhaust_frames.append([self.rect.centerx, self.rect.centery + self.rect.height // 2, (255, 255, 0), 5, 2])
+        self.exhaust_frames.append([self.rect.centerx - 10, self.rect.centery + self.rect.height // 2, (255, 165, 0), 7, 2.5])
+        self.exhaust_frames.append([self.rect.centerx + 10, self.rect.centery + self.rect.height // 2, (255, 0, 0), 6, 2.2])
 
     def gravidade(self):
         self.velocidade_y += 0.15
@@ -130,17 +142,34 @@ class Player(Mob):
         self.estabilidade_foguete()
         self.aplicar_resistencia()
         self.mover()
+        self.draw_exhaust(tela)
+       
 
         self.image = pygame.transform.rotate(self.img, self.angulo_foquete - 90)
         self.rect = self.image.get_rect(center=self.rect.center)
         
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
-        
 
+    def carregar_frames_exhaust(self, sprite_sheet, rows, cols):
+        frames = []
+        sheet_rect = sprite_sheet.get_rect()
+        frame_width = sheet_rect.width // cols
+        frame_height = sheet_rect.height // rows
 
+        for row in range(rows):
+            for col in range(cols):
+                frame = sprite_sheet.subsurface(pygame.Rect(
+                    col * frame_width, row * frame_height, frame_width, frame_height
+                ))
+                frames.append(frame)
 
+        return frames
 
+    def draw_exhaust(self, tela):
 
+        exhaust_pos = (self.rect.centerx, self.rect.centery + self.rect.height // 2)
+        tela.blit(self.exhaust_frames[self.current_exhaust_frame], exhaust_pos)
+            
 
 class Controle:  # criar classe para resolver coisas sobre controle
     def __init__(self):
@@ -179,65 +208,3 @@ class Controle:  # criar classe para resolver coisas sobre controle
         
 controle = Controle()
 jogador = None
-
-import pygame
-import sys
-
-pygame.init()
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Rocket Exhaust Effect")
-
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-ORANGE = (255, 165, 0)
-YELLOW = (255, 255, 0)
-
-rocket_img = pygame.image.load("rocket.png")  # Adicione sua própria imagem de foguete aqui
-rocket_rect = rocket_img.get_rect()
-rocket_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-
-exhaust_particles = []
-
-def draw_exhaust():
-    for particle in exhaust_particles:
-        pygame.draw.circle(screen, particle[2], (particle[0], particle[1]), particle[3])
-
-def update_exhaust():
-    for particle in exhaust_particles:
-        particle[1] += particle[4]  # Movimento da partícula
-        particle[3] -= 0.1  # Reduzir tamanho da partícula
-        if particle[3] <= 0:
-            exhaust_particles.remove(particle)
-
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        rocket_rect.x -= 5
-    if keys[pygame.K_RIGHT]:
-        rocket_rect.x += 5
-    if keys[pygame.K_UP]:
-        rocket_rect.y -= 5
-    if keys[pygame.K_DOWN]:
-        rocket_rect.y += 5
-
-    exhaust_particles.append([rocket_rect.centerx, rocket_rect.centery + rocket_rect.height // 2, YELLOW, 5, 2])
-    exhaust_particles.append([rocket_rect.centerx - 10, rocket_rect.centery + rocket_rect.height // 2, ORANGE, 7, 2.5])
-    exhaust_particles.append([rocket_rect.centerx + 10, rocket_rect.centery + rocket_rect.height // 2, RED, 6, 2.2])
-
-    screen.fill(BLACK)
-    screen.blit(rocket_img, rocket_rect)
-    draw_exhaust()
-    update_exhaust()
-    pygame.display.flip()
-
-    pygame.time.Clock().tick(60)

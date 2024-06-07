@@ -54,7 +54,7 @@ while True: # loop principal
     tela.blit(plano_de_fundo, (0, 0)) # plano de fundo da tela
 
     atualizar_objetos()
-
+  
     colisao.update()
 
     visualizador.informacoes.update()
