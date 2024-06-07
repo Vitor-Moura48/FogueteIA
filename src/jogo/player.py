@@ -1,14 +1,14 @@
 from .base import Mob
 from config.configuracoes import randint, pygame, math, numpy, tela, cache, uniform
 from recursos import dados
-#from ..rede_neural.rede_neural import RedeNeural
+from ..rede_neural.rede_neural import RedeNeural
 from .navio import barco
 
 class Player(Mob):
     def __init__(self, vida, dano, real=False):
         Mob.__init__(self, 'recursos/imagens/rocketg.png', (1, 1), (225, 225), (0, 0), vida, dano, escala=(70, 150))
 
-        #self.rede_neural = RedeNeural([8, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
+        self.rede_neural = RedeNeural([8, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
 
         self.rect.center = dados.center_agentes
         self.antigo_rect = self.rect
