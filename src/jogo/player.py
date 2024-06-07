@@ -5,8 +5,8 @@ from ..rede_neural.rede_neural import RedeNeural
 from .navio import barco
 
 class Player(Mob):
-    def __init__(self, vida, dano, real=False):
-        Mob.__init__(self, 'recursos/imagens/rocketg.png', (1, 1), (225, 225), (0, 0), vida, dano, escala=(70, 150))
+    def __init__(self, real=False):
+        Mob.__init__(self, 'recursos/imagens/sprite_rocket1.png', (1, 4), (132, 132), (0, 0), escala=(70, 150))
 
         self.rede_neural = RedeNeural([8, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
 
@@ -14,8 +14,8 @@ class Player(Mob):
         self.antigo_rect = self.rect
 
         self.forca = 0.5
-        self.velocidade_x = 1
-        self.velocidade_y = 1
+        self.velocidade_x = 0
+        self.velocidade_y = 0
         self.velocidade_angular = 0
         self.angulo_foquete = randint(80, 100)
         self.resistencia_do_ar = 0.01
@@ -24,19 +24,12 @@ class Player(Mob):
         self.combustivel = 2000
 
         self.real = real
-        self.img = self.image
+        self.imgs = [self.sprites[0], self.sprites[1], self.sprites[2], self.sprites[3]]
+        self.index_imagem = 0
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
         self.pousado = False
         self.index_alvo = 0
         self.frames_fora = 0
-
-        # Carregar a sprite sheet dos propulsores
-        self.caminho_do_exhaust = pygame.image.load('recursos/imagens/rocket_exhaust.png').convert_alpha()
-        self.exhaust_frames = self.carregar_frames_exhaust(self.caminho_do_exhaust, 4, 5) #carrega os frames com as linhas e colunas
-
-        self.current_exhaust_frame = 0
-        self.exhaust_frame_delay = 5  # controla a velocidade da animação
-        self.exhaust_frame_counter = 0
 
     @cache
     def obter_pontos(self, centro, angulo):
@@ -72,12 +65,8 @@ class Player(Mob):
         self.velocidade_y -= self.forca * numpy.sin(numpy.deg2rad(self.angulo_foquete)) * potencia
         self.combustivel -= 1
 
-        self.exhaust_frames.append([self.rect.centerx, self.rect.centery + self.rect.height // 2, (255, 255, 0), 5, 2])
-        self.exhaust_frames.append([self.rect.centerx - 10, self.rect.centery + self.rect.height // 2, (255, 165, 0), 7, 2.5])
-        self.exhaust_frames.append([self.rect.centerx + 10, self.rect.centery + self.rect.height // 2, (255, 0, 0), 6, 2.2])
-
     def gravidade(self):
-        self.velocidade_y += 0.15
+        self.velocidade_y += 0.3
    
     def obter_entradas(self):
         
@@ -131,45 +120,27 @@ class Player(Mob):
             if output[2]:
                 if self.combustivel > 0:
                     self.acelerar(self.rede_neural.estado_atual_da_rede[2] * 2)
+                    self.index_imagem = 1
                 
                     if output[0]:
                         self.mover_esquerda(self.rede_neural.estado_atual_da_rede[0] * 2)
+                        self.index_imagem = 2
                     if output[1]:
                         self.mover_direita(self.rede_neural.estado_atual_da_rede[1] * 2)
+                        self.index_imagem = 3
+            else:
+                self.index_imagem = 0
 
         self.gravidade() if not self.pousado else None
         self.aplicar_vento()
         self.estabilidade_foguete()
         self.aplicar_resistencia()
         self.mover()
-        self.draw_exhaust(tela)
        
-
-        self.image = pygame.transform.rotate(self.img, self.angulo_foquete - 90)
+        self.image = pygame.transform.rotate(self.imgs[self.index_imagem], self.angulo_foquete - 90)
         self.rect = self.image.get_rect(center=self.rect.center)
         
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
-
-    def carregar_frames_exhaust(self, sprite_sheet, rows, cols):
-        frames = []
-        sheet_rect = sprite_sheet.get_rect()
-        frame_width = sheet_rect.width // cols
-        frame_height = sheet_rect.height // rows
-
-        for row in range(rows):
-            for col in range(cols):
-                frame = sprite_sheet.subsurface(pygame.Rect(
-                    col * frame_width, row * frame_height, frame_width, frame_height
-                ))
-                frames.append(frame)
-
-        return frames
-
-    def draw_exhaust(self, tela):
-
-        exhaust_pos = (self.rect.centerx, self.rect.centery + self.rect.height // 2)
-        tela.blit(self.exhaust_frames[self.current_exhaust_frame], exhaust_pos)
-            
 
 class Controle:  # criar classe para resolver coisas sobre controle
     def __init__(self):
@@ -197,12 +168,17 @@ class Controle:  # criar classe para resolver coisas sobre controle
         if jogador != None:
             if pygame.key.get_pressed()[pygame.K_SPACE] or self.eixo_y <= -0.4:
                 jogador.acelerar()
+                jogador.index_imagem = 1
 
                 # para mover player ao pressionar tecla, ou joystick
                 if pygame.key.get_pressed()[pygame.K_a] or pygame.key.get_pressed()[pygame.K_LEFT] or self.eixo_x <= -0.4:
                     jogador.mover_esquerda()
+                    jogador.index_imagem = 2
                 if pygame.key.get_pressed()[pygame.K_d] or pygame.key.get_pressed()[pygame.K_RIGHT] or self.eixo_x >= 0.4:
                     jogador.mover_direita()
+                    jogador.index_imagem = 3
+            else:
+                jogador.index_imagem = 0
          
             
         
