@@ -179,3 +179,65 @@ class Controle:  # criar classe para resolver coisas sobre controle
         
 controle = Controle()
 jogador = None
+
+import pygame
+import sys
+
+pygame.init()
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Rocket Exhaust Effect")
+
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+ORANGE = (255, 165, 0)
+YELLOW = (255, 255, 0)
+
+rocket_img = pygame.image.load("rocket.png")  # Adicione sua própria imagem de foguete aqui
+rocket_rect = rocket_img.get_rect()
+rocket_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+
+exhaust_particles = []
+
+def draw_exhaust():
+    for particle in exhaust_particles:
+        pygame.draw.circle(screen, particle[2], (particle[0], particle[1]), particle[3])
+
+def update_exhaust():
+    for particle in exhaust_particles:
+        particle[1] += particle[4]  # Movimento da partícula
+        particle[3] -= 0.1  # Reduzir tamanho da partícula
+        if particle[3] <= 0:
+            exhaust_particles.remove(particle)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        rocket_rect.x -= 5
+    if keys[pygame.K_RIGHT]:
+        rocket_rect.x += 5
+    if keys[pygame.K_UP]:
+        rocket_rect.y -= 5
+    if keys[pygame.K_DOWN]:
+        rocket_rect.y += 5
+
+    exhaust_particles.append([rocket_rect.centerx, rocket_rect.centery + rocket_rect.height // 2, YELLOW, 5, 2])
+    exhaust_particles.append([rocket_rect.centerx - 10, rocket_rect.centery + rocket_rect.height // 2, ORANGE, 7, 2.5])
+    exhaust_particles.append([rocket_rect.centerx + 10, rocket_rect.centery + rocket_rect.height // 2, RED, 6, 2.2])
+
+    screen.fill(BLACK)
+    screen.blit(rocket_img, rocket_rect)
+    draw_exhaust()
+    update_exhaust()
+    pygame.display.flip()
+
+    pygame.time.Clock().tick(60)
