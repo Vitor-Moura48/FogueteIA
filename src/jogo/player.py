@@ -109,7 +109,7 @@ class Player(Mob):
         
         if not self.real:
         
-            if self.rect.center == self.antigo_rect.center or self.rect.bottom > dados.dimensoes_janela[1] or self.rect.right < 0 or self.rect.left > dados.dimensoes_janela[0]:
+            if self.rect.center == self.antigo_rect.center or self.rect.bottom < 0 or self.rect.right < 0 or self.rect.left > dados.dimensoes_janela[0]:
                 self.frames_fora += 1
             else:
                 self.frames_fora = 0

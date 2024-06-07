@@ -47,10 +47,6 @@ class GerenciadorNeural:
         # zera algumas variaveis que serão usadas depois
         self.agentes_elite = 0
         self.total_redes = []
-
-        # salva algumas informações
-        with open("recursos/saves/informacoes.json", 'w') as arquivo:
-            json.dump([self.contador_geracoes], arquivo)
        
         # divide a recompensa pela quantidade de partidas para fazer a media de recompensa
         self.melhor_record_geracao = 0
@@ -75,6 +71,20 @@ class GerenciadorNeural:
                     # se sim, adiciona o agente em um arquivo csv
                     with open("recursos/saves/melhor_individuo.json", 'w') as arquivo:
                         json.dump(pesos_normalizados, arquivo)
+        
+        # salva algumas informações
+        if os.path.exists("recursos/saves/informacoes.json"):
+            with open("recursos/saves/informacoes.json", 'r') as arquivo:
+                dados = json.load(arquivo)
+        else:
+            dados = {}
+        dados['geracao'] = self.contador_geracoes
+        if 'records' in dados and isinstance(dados['records'], list):
+            dados['records'].append(self.melhor_record_geracao)
+        else:
+            dados['records'] = [self.melhor_record_geracao]
+        with open("recursos/saves/informacoes.json", 'w') as arquivo:
+            json.dump(dados, arquivo, indent=4, ensure_ascii=False)
 
         # printa o melhor tempo geral e o melhor tempo dessa geração
         print(f'melhor tempo global: {self.melhor_record}')
@@ -125,7 +135,7 @@ class GerenciadorNeural:
     def verificar_arquivos(self):
             
         self.geracao_anterior = self.carregar_arquivos("recursos/saves/geracao_anterior.json", [])
-        self.contador_geracoes = self.carregar_arquivos("recursos/saves/informacoes.json", [0])[0] 
+        self.contador_geracoes = self.carregar_arquivos("recursos/saves/informacoes.json", {'geracao': 0})['geracao']
         self.geracao_avo = self.carregar_arquivos("recursos/saves/geracao_avo.json", [])
         self.melhor_agente = self.carregar_arquivos("recursos/saves/melhor_individuo.json", None)
         self.melhor_record = self.carregar_arquivos("recursos/saves/melhor_individuo.json", [[0]])[0][0]
