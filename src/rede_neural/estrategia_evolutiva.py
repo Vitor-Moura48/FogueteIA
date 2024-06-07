@@ -1,5 +1,5 @@
 import json, numpy, os, time, copy
-
+from src.jogo.visualizador import informacoes
 class GerenciadorNeural:
     def __init__(self, numero_players, partidas_por_geracao, elitismo, classe, arg=()):
         
@@ -98,6 +98,8 @@ class GerenciadorNeural:
         self.salvar_geracao(self.geracao_avo, "recursos/saves/geracao_avo.json")
 
         self.carregar_redes()
+
+        informacoes.criar_grafico()
     
     # salva a geração em um arquivo
     def salvar_geracao(self, geracao, nome_do_arquivo):

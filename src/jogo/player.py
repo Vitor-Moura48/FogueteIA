@@ -1,12 +1,12 @@
 from .base import Mob
-from config.configuracoes import randint, pygame, math, numpy, tela, cache, uniform
+from config.configuracoes import randint, pygame, numpy, tela, cache
 from recursos import dados
 from ..rede_neural.rede_neural import RedeNeural
-from .navio import barco
+
 
 class Player(Mob):
     def __init__(self, real=False):
-        Mob.__init__(self, 'recursos/imagens/sprite_rocket1.png', (1, 4), (132, 132), (0, 0), escala=(70, 150))
+        Mob.__init__(self, 'recursos/imagens/sprite_rocket1.png', (1, 4), (132, 132), (0, 0), escala=(100, 150))
 
         self.rede_neural = RedeNeural([8, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
 
@@ -14,6 +14,8 @@ class Player(Mob):
         self.antigo_rect = self.rect
 
         self.forca = 0.5
+        self.aceleracao_x = 0
+        self.aceleracao_y = 0
         self.velocidade_x = 0
         self.velocidade_y = 0
         self.velocidade_angular = 0
@@ -24,7 +26,7 @@ class Player(Mob):
         self.combustivel = 2000
 
         self.real = real
-        self.imgs = [self.sprites[0], self.sprites[1], self.sprites[2], self.sprites[3]]
+        self.imgs = [self.sprites[0], self.sprites[1], self.sprites[3], self.sprites[2]]
         self.index_imagem = 0
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
         self.pousado = False
@@ -46,10 +48,15 @@ class Player(Mob):
         return [(x1, y1), (x2, y2), (x3, y3)]
     
     def mover(self):
+        self.velocidade_x += self.aceleracao_x
+        self.velocidade_y += self.aceleracao_y
+
         if abs(self.velocidade_x) >= 1:
-            self.rect.x += int(self.velocidade_x)
+            self.rect.x += self.velocidade_x
+            self.velocidade_x -= int(self.velocidade_x)
         if abs(self.velocidade_y) >= 1:
-            self.rect.y += int(self.velocidade_y)
+            self.rect.y += self.velocidade_y
+            self.velocidade_y -= int(self.velocidade_y)
     
     def mover_esquerda(self, potencia=1):
         self.velocidade_angular += (self.forca * numpy.cos(numpy.deg2rad(30))) * potencia
@@ -61,17 +68,17 @@ class Player(Mob):
         self.angulo_foquete %= 360
         
     def acelerar(self, potencia=1):
-        self.velocidade_x += self.forca * numpy.cos(numpy.deg2rad(self.angulo_foquete)) * potencia
-        self.velocidade_y -= self.forca * numpy.sin(numpy.deg2rad(self.angulo_foquete)) * potencia
+        self.aceleracao_x += self.forca * numpy.cos(numpy.deg2rad(self.angulo_foquete)) * potencia
+        self.aceleracao_y -= self.forca * numpy.sin(numpy.deg2rad(self.angulo_foquete)) * potencia
         self.combustivel -= 1
 
     def gravidade(self):
-        self.velocidade_y += 0.3
+        self.aceleracao_y += 0.25
    
     def obter_entradas(self):
         
-        velocidade_x_normalizada = self.velocidade_x / 16
-        velocidade_y_normalizada = self.velocidade_x / 32
+        velocidade_x_normalizada = self.aceleracao_x / 16
+        velocidade_y_normalizada = self.aceleracao_y / 32
         velocidade_angular_normalizada = self.velocidade_angular / 8
 
         distancia_angulo = (self.angulo_foquete - 90)
@@ -83,27 +90,26 @@ class Player(Mob):
         combustivel_normalizado = self.combustivel / self.max_combustivel
 
         entradas = [velocidade_x_normalizada, velocidade_y_normalizada, velocidade_angular_normalizada, distancia_angulo, vento_normalizado, combustivel_normalizado]
-
         for sprite in dados.sprites_alvos:
             if sprite.indice == self.index_alvo:
                 distancia_x_normalizada = (self.rect.centerx - sprite.rect.centerx) / tela.get_size()[0]
                 distancia_y_normalizada = (self.rect.centery - sprite.rect.centery) / tela.get_size()[1]
                 entradas.extend([distancia_x_normalizada, distancia_y_normalizada])
+                self.rede_neural.recompensa += 1 - numpy.hypot(distancia_x_normalizada, distancia_y_normalizada)
         
         entradas.extend([0] * (8 - len(entradas))) # preenche com 0 oq faltar
-               
         return entradas
 
     def aplicar_resistencia(self):
-        self.velocidade_x -= self.velocidade_x * self.resistencia_do_ar
-        self.velocidade_y -= self.velocidade_y * self.resistencia_do_ar
+        self.aceleracao_x -= self.aceleracao_x * self.resistencia_do_ar
+        self.aceleracao_y -= self.aceleracao_y * self.resistencia_do_ar
         self.velocidade_angular -= self.velocidade_angular * self.resistencia_do_ar * 10
     
     def estabilidade_foguete(self):
         self.angulo_foquete = self.angulo_foquete + (90 - self.angulo_foquete) * 0.005
     
     def aplicar_vento(self):
-        self.velocidade_x += self.vento
+        self.aceleracao_y += self.vento
 
     def update(self):
         
@@ -141,6 +147,7 @@ class Player(Mob):
         self.rect = self.image.get_rect(center=self.rect.center)
         
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
+        self.debug()
 
 class Controle:  # criar classe para resolver coisas sobre controle
     def __init__(self):
@@ -180,7 +187,5 @@ class Controle:  # criar classe para resolver coisas sobre controle
             else:
                 jogador.index_imagem = 0
          
-            
-        
 controle = Controle()
 jogador = None

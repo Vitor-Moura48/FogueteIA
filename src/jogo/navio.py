@@ -1,6 +1,6 @@
 from .base import Mob
-from config.configuracoes import randint, pygame, tela, dimensoes_janela
-from recursos import dados
+from config.configuracoes import pygame, tela, dimensoes_janela
+
 
 class Navio(Mob):
     def __init__(self):
@@ -17,8 +17,5 @@ class Navio(Mob):
         
         #pygame.draw.rect(tela, (255, 0, 0), self.bloco_colisao, 2)
         self.bloco_colisao.center = self.rect.center
-
-    def update(self):
-        self.atualizar_bloco_colisao()
 
 barco = Navio()

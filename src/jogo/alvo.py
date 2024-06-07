@@ -1,4 +1,4 @@
-from config.configuracoes import pygame, os, randint, numpy, choice, uniform, tela
+from config.configuracoes import pygame, os, randint, tela
 from recursos import dados
 
 class Alvo(pygame.sprite.Sprite):

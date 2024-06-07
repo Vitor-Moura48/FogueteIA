@@ -10,7 +10,7 @@ class Colisoes:
     # função para conferir as colisões com o player
     def verificar_colisao(self, objeto):
         if objeto.rect.bottom > (tela.get_height() - 40):
-            objeto.rede_neural.recompensa += objeto.combustivel
+            #objeto.rede_neural.recompensa += objeto.combustivel
             estrategia_evolutiva.gerenciador.desativar_agente(objeto)
             objeto.kill()
             return 1
@@ -20,21 +20,23 @@ class Colisoes:
             for alvo in dados.sprites_alvos:
                 if alvo.rect.collidepoint(ponto) and alvo.indice == objeto.index_alvo:
                     objeto.index_alvo += 1
-                    objeto.rede_neural.recompensa += 2000
+                    objeto.rede_neural.recompensa += 500 * objeto.index_alvo
     
     def conferir_pouso(self, objeto):
 
         for ponto in objeto.pontos[1:]:
             if (ponto[0] > barco.bloco_colisao.left and ponto[0] < barco.bloco_colisao.right) and ponto[1] >= barco.bloco_colisao.top:
-                if objeto.angulo_foquete < 100 and objeto.angulo_foquete > 80 and objeto.velocidade_y < 3:
+                if objeto.angulo_foquete < 100 and objeto.angulo_foquete > 80 and objeto.aceleracao_y < 3:
                     if not objeto.pousado and objeto.index_alvo == 3:
+                        objeto.aceleracao_x = 0
+                        objeto.aceleracao_y = 0
                         objeto.velocidade_x = 0
                         objeto.velocidade_y = 0
                         objeto.angulo_foquete = 90
                         return True
 
                 else:
-                    objeto.rede_neural.recompensa += objeto.combustivel
+                    #objeto.rede_neural.recompensa += objeto.combustivel
                     estrategia_evolutiva.gerenciador.desativar_agente(objeto)
                     objeto.kill()
                     break
@@ -49,7 +51,7 @@ class Colisoes:
                  agente.pousado = True if self.conferir_pouso(agente) else False
              for agente in estrategia_evolutiva.gerenciador.agentes[:]:
                  if agente.frames_fora > 100:
-                     agente.rede_neural.recompensa += agente.combustivel
+                     #agente.rede_neural.recompensa += agente.combustivel
                      estrategia_evolutiva.gerenciador.desativar_agente(agente)
                      agente.kill()
 
@@ -69,8 +71,10 @@ class Colisoes:
                 
                 for ponto in player.jogador.pontos[1:]:
                     if (ponto[0] > barco.bloco_colisao.left and ponto[0] < barco.bloco_colisao.right) and ponto[1] >= barco.bloco_colisao.top:
-                        if player.jogador.angulo_foquete < 100 and player.jogador.angulo_foquete > 80 and player.jogador.velocidade_y < 3:
+                        if player.jogador.angulo_foquete < 100 and player.jogador.angulo_foquete > 80 and player.jogador.aceleracao_y < 3:
                             if not player.jogador.pousado:
+                                player.jogador.aceleracao_x = 0
+                                player.jogador.aceleracao_y = 0
                                 player.jogador.velocidade_x = 0
                                 player.jogador.velocidade_y = 0
                                 player.jogador.angulo_foquete = 90
