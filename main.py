@@ -16,7 +16,7 @@ def finalizar_partida():
 
     for sprite in dados.sprites_alvos:
         sprite.kill()
-    for indice in range(3):
+    for indice in range(4):
         alvo.Alvo(indice)
 
     dados.center_agentes = (randint(int(dimensoes_janela[0] * 0.1), int(dimensoes_janela[0] * 0.9)), randint(int(dimensoes_janela[1] * 0.3), int(dimensoes_janela[1] * 0.6)))
@@ -38,9 +38,9 @@ def responder_a_eventos():
             for agente in dados.sprites_agentes:
                     agente.disparar()
 
-for indice in range(3):
+for indice in range(4):
     alvo.Alvo(indice)
-estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(1, 20, 0.5, player.Player)
+estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(300, 20, 0.5, player.Player)
 estrategia_evolutiva.gerenciador.nova_partida()
 player.jogador = player.Player(real=True)
 colisao = colisoes.Colisoes()

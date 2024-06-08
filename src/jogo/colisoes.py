@@ -27,12 +27,13 @@ class Colisoes:
         for ponto in objeto.pontos[1:]:
             if (ponto[0] > barco.bloco_colisao.left and ponto[0] < barco.bloco_colisao.right) and ponto[1] >= barco.bloco_colisao.top:
                 if objeto.angulo_foquete < 100 and objeto.angulo_foquete > 80 and objeto.aceleracao_y < 3:
-                    if not objeto.pousado and objeto.index_alvo == 3:
+                    if not objeto.pousado and objeto.index_alvo == 4:
                         objeto.aceleracao_x = 0
                         objeto.aceleracao_y = 0
                         objeto.velocidade_x = 0
                         objeto.velocidade_y = 0
                         objeto.angulo_foquete = 90
+                        objeto.rede_neural.recompensa += objeto.combustivel
                         return True
 
                 else:

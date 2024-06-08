@@ -99,7 +99,7 @@ class GerenciadorNeural:
 
         self.carregar_redes()
 
-        informacoes.criar_grafico()
+        #informacoes.criar_grafico()
     
     # salva a geração em um arquivo
     def salvar_geracao(self, geracao, nome_do_arquivo):
