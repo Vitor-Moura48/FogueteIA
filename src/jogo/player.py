@@ -6,7 +6,7 @@ from ..rede_neural.rede_neural import RedeNeural
 
 class Player(Mob):
     def __init__(self, real=False):
-        Mob.__init__(self, 'recursos/imagens/sprite_rocket1.png', (1, 4), (132, 132), (0, 0), escala=(81, 122))
+        Mob.__init__(self, 'recursos/imagens/sprite_rocket1.png', (1, 4), (132, 132), (0, 0), escala=(73, 110))
 
         self.rede_neural = RedeNeural([8, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
 
@@ -29,23 +29,27 @@ class Player(Mob):
         self.imgs = [self.sprites[0], self.sprites[1], self.sprites[3], self.sprites[2]]
         self.index_imagem = 0
         self.pontos = self.obter_pontos(self.rect.center, self.angulo_foquete)
-        self.pousado = False
         self.index_alvo = 0
         self.frames_fora = 0
 
     @cache
     def obter_pontos(self, centro, angulo):
         
-        x1 = centro[0] + ( numpy.cos(numpy.deg2rad(angulo)) * 50 )
-        y1 = centro[1] - ( numpy.sin(numpy.deg2rad(angulo)) * 50 )
+        x1 = centro[0] + ( numpy.cos(numpy.deg2rad(angulo)) * 35 )
+        y1 = centro[1] - ( numpy.sin(numpy.deg2rad(angulo)) * 35 )
+        #pygame.draw.circle(tela, (200,200,100), (x1.item(),y1.item()), 3)
 
-        x2 = centro[0] + ( numpy.cos(numpy.deg2rad(angulo + 171)) * 45 )
-        y2 = centro[1] - ( numpy.sin(numpy.deg2rad(angulo + 171)) * 45 )
+        x2 = centro[0] + ( numpy.cos(numpy.deg2rad(angulo + 171)) * 30 )
+        y2 = centro[1] - ( numpy.sin(numpy.deg2rad(angulo + 171)) * 30 )
+        #pygame.draw.circle(tela, (200,200,100), (x2.item(),y2.item()), 3)
 
-        x3 = centro[0] + ( numpy.cos(numpy.deg2rad(angulo + 191)) * 45 )
-        y3 = centro[1] - ( numpy.sin(numpy.deg2rad(angulo + 191)) * 45 ) 
+        x3 = centro[0] + ( numpy.cos(numpy.deg2rad(angulo + 191)) * 30 )
+        y3 = centro[1] - ( numpy.sin(numpy.deg2rad(angulo + 191)) * 30 ) 
+
+        x4 = centro[0] + ( numpy.cos(numpy.deg2rad(angulo + 191)) * 0 )
+        y4 = centro[1] - ( numpy.sin(numpy.deg2rad(angulo + 191)) * 0 ) 
     
-        return [(x1, y1), (x2, y2), (x3, y3)]
+        return [(x1, y1), (x2, y2), (x3, y3), (x4, y4)]
     
     def mover(self):
         self.velocidade_x += self.aceleracao_x
@@ -92,6 +96,7 @@ class Player(Mob):
 
         vento_normalizado = self.vento / dados.max_vento
         combustivel_normalizado = self.combustivel / self.max_combustivel
+        combustivel_normalizado = 0
 
         entradas = [velocidade_x_normalizada, velocidade_y_normalizada, velocidade_angular_normalizada, distancia_angulo, vento_normalizado, combustivel_normalizado]
         for sprite in dados.sprites_alvos:
@@ -99,8 +104,8 @@ class Player(Mob):
                 distancia_x_normalizada = (self.rect.centerx - sprite.rect.centerx) / tela.get_size()[0]
                 distancia_y_normalizada = (self.rect.centery - sprite.rect.centery) / tela.get_size()[1]
                 entradas.extend([distancia_x_normalizada, distancia_y_normalizada])
-                self.rede_neural.recompensa += 1 - numpy.hypot(distancia_x_normalizada, distancia_y_normalizada)
-        
+                self.rede_neural.recompensa += (1 - numpy.hypot(distancia_x_normalizada, distancia_y_normalizada)) * (self.index_alvo + 1)     
+                
         entradas.extend([0] * (8 - len(entradas))) # preenche com 0 oq faltar
         return entradas
 
@@ -141,7 +146,7 @@ class Player(Mob):
             else:
                 self.index_imagem = 0
 
-        self.gravidade() if not self.pousado else None
+        self.gravidade()
         self.aplicar_vento()
         self.estabilidade_foguete()
         self.aplicar_resistencia()

@@ -50,8 +50,10 @@ class GerenciadorNeural:
        
         # divide a recompensa pela quantidade de partidas para fazer a media de recompensa
         self.melhor_record_geracao = 0
+        self.soma_pontuacoes = 0
         for agente in range(self.numero_players):
             self.geracao_atual[agente][0][0] /= self.partidas_por_geracao
+            self.soma_pontuacoes += self.geracao_atual[agente][0][0]
 
             # marca o melhor tempo da geração
             if self.geracao_atual[agente][0][0] > self.melhor_record_geracao:
@@ -71,7 +73,8 @@ class GerenciadorNeural:
                     # se sim, adiciona o agente em um arquivo csv
                     with open("recursos/saves/melhor_individuo.json", 'w') as arquivo:
                         json.dump(pesos_normalizados, arquivo)
-        
+
+        self.media_record_geracao = self.soma_pontuacoes / len(self.geracao_atual)
         # salva algumas informações
         if os.path.exists("recursos/saves/informacoes.json"):
             with open("recursos/saves/informacoes.json", 'r') as arquivo:
@@ -80,15 +83,21 @@ class GerenciadorNeural:
             dados = {}
         dados['geracao'] = self.contador_geracoes
         if 'records' in dados and isinstance(dados['records'], list):
-            dados['records'].append(self.melhor_record_geracao)
+            dados['records'].append(self.media_record_geracao)
+            print(dados)
+
         else:
-            dados['records'] = [self.melhor_record_geracao]
+            dados['records'] = [self.media_record_geracao]
+            print(dados)
         with open("recursos/saves/informacoes.json", 'w') as arquivo:
+            print(dados)
             json.dump(dados, arquivo, indent=4, ensure_ascii=False)
+            print(dados)
 
         # printa o melhor tempo geral e o melhor tempo dessa geração
-        print(f'melhor tempo global: {self.melhor_record}')
-        print(f"melhor tempo da geração; {self.melhor_record_geracao}")
+        print(f'melhor pontuação global: {self.melhor_record}')
+        print(f"melhor pontuação da geração: {self.melhor_record_geracao}")
+        print(f"pontuação média da geração: {self.media_record_geracao}")
 
         # pega a geração atual e passa ela para as gerações passadas
         self.geracao_avo = self.geracao_anterior

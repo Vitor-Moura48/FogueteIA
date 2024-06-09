@@ -16,3 +16,5 @@ class Alvo(pygame.sprite.Sprite):
         self.rect.center = randint(50, 950), randint(50, 300)
 
         self.indice = indice
+    def update(self):
+        pass#pygame.draw.rect(tela, (100,0,0), self.rect, 2)

@@ -19,21 +19,24 @@ class Colisoes:
             ponto = (ponto[0].item(), ponto[1].item())
             for alvo in dados.sprites_alvos:
                 if alvo.rect.collidepoint(ponto) and alvo.indice == objeto.index_alvo:
-                    objeto.index_alvo += 1
-                    objeto.rede_neural.recompensa += 500 * objeto.index_alvo
+                    if objeto.index_alvo < 6:
+                        objeto.index_alvo += 1
+                        #objeto.rede_neural.recompensa += 300 * objeto.index_alvo
     
     def conferir_pouso(self, objeto):
 
         for ponto in objeto.pontos[1:]:
             if (ponto[0] > barco.bloco_colisao.left and ponto[0] < barco.bloco_colisao.right) and ponto[1] >= barco.bloco_colisao.top:
                 if objeto.angulo_foquete < 100 and objeto.angulo_foquete > 80 and objeto.aceleracao_y < 3:
-                    if not objeto.pousado and objeto.index_alvo == 4:
+                    if objeto.index_alvo == 6:
                         objeto.aceleracao_x = 0
                         objeto.aceleracao_y = 0
                         objeto.velocidade_x = 0
                         objeto.velocidade_y = 0
                         objeto.angulo_foquete = 90
                         objeto.rede_neural.recompensa += objeto.combustivel
+                        estrategia_evolutiva.gerenciador.desativar_agente(objeto)
+                        objeto.kill()
                         return True
 
                 else:
@@ -49,7 +52,7 @@ class Colisoes:
              for agente in estrategia_evolutiva.gerenciador.agentes[:]:
                  self.verificar_colisao(agente)
              for agente in estrategia_evolutiva.gerenciador.agentes[:]:
-                 agente.pousado = True if self.conferir_pouso(agente) else False
+                 self.conferir_pouso(agente)
              for agente in estrategia_evolutiva.gerenciador.agentes[:]:
                  if agente.frames_fora > 100:
                      #agente.rede_neural.recompensa += agente.combustivel
