@@ -1,5 +1,6 @@
 import json, numpy, os, time, copy
 from src.jogo.visualizador import informacoes
+import torch
 class GerenciadorNeural:
     def __init__(self, numero_players, partidas_por_geracao, elitismo, classe, arg=()):
         
@@ -66,7 +67,7 @@ class GerenciadorNeural:
 
                     # tranforma os dados ndrray em listas normais 
                     pesos_normalizados = [
-                                            [neuronio.tolist() if isinstance(neuronio, numpy.ndarray) else neuronio for neuronio in camada]
+                                            [self.convert_neuronio(neuronio) for neuronio in camada]
                                             for camada in self.melhor_agente
                                             ]
 
@@ -82,17 +83,16 @@ class GerenciadorNeural:
         else:
             dados = {}
         dados['geracao'] = self.contador_geracoes
+        try:
+            self.media_record_geracao = self.media_record_geracao.item()
+        except:pass
         if 'records' in dados and isinstance(dados['records'], list):
             dados['records'].append(self.media_record_geracao)
-            print(dados)
 
         else:
             dados['records'] = [self.media_record_geracao]
-            print(dados)
         with open("recursos/saves/informacoes.json", 'w') as arquivo:
-            print(dados)
             json.dump(dados, arquivo, indent=4, ensure_ascii=False)
-            print(dados)
 
         # printa o melhor tempo geral e o melhor tempo dessa geração
         print(f'melhor pontuação global: {self.melhor_record}')
@@ -110,20 +110,31 @@ class GerenciadorNeural:
 
         #informacoes.criar_grafico()
     
+    def convert_neuronio(self, neuronio):
+        if isinstance(neuronio, numpy.ndarray):
+            return neuronio.tolist()
+        elif isinstance(neuronio, torch.Tensor):
+            return neuronio.tolist()
+        return neuronio
+    
     # salva a geração em um arquivo
     def salvar_geracao(self, geracao, nome_do_arquivo):
         
-        with open(nome_do_arquivo, "w") as arquivo:
-            # tranforma os dados ndrray em listas normais 
-            lista_geracao = [   
-                                [
-                                [neuronio.tolist() if isinstance(neuronio, numpy.ndarray) else neuronio for neuronio in camada]
-                                for camada in individuo 
+        try:
+            with open(nome_do_arquivo, "w") as arquivo:
+                # tranforma os dados ndrray em listas normais 
+                lista_geracao = [   
+                                    [
+                                    [self.convert_neuronio(neuronio) for neuronio in camada]
+                                    for camada in individuo 
+                                    ]
+                                    for individuo in geracao
                                 ]
-                                for individuo in geracao
-                            ]
-            json.dump(lista_geracao, arquivo)
-
+                json.dump(lista_geracao, arquivo)
+        except Exception as e: 
+            print(e)
+            with open(nome_do_arquivo, "w") as arquivo:
+                json.dump(lista_geracao, arquivo)
     def carregar_redes(self):
 
         # junta as duas gerações mais recentes e organiza os individuos pela recompensa obtida por cada um  

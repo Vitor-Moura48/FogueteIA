@@ -34,9 +34,10 @@ class Colisoes:
                         objeto.velocidade_x = 0
                         objeto.velocidade_y = 0
                         objeto.angulo_foquete = 90
-                        objeto.rede_neural.recompensa += objeto.combustivel
+                        objeto.rede_neural.recompensa += objeto.combustivel ** 1.4
                         estrategia_evolutiva.gerenciador.desativar_agente(objeto)
                         objeto.kill()
+                        dados.sucessos += 1
                         return True
 
                 else:
@@ -54,7 +55,7 @@ class Colisoes:
              for agente in estrategia_evolutiva.gerenciador.agentes[:]:
                  self.conferir_pouso(agente)
              for agente in estrategia_evolutiva.gerenciador.agentes[:]:
-                 if agente.frames_fora > 100:
+                 if agente.frames_fora > 60:
                      #agente.rede_neural.recompensa += agente.combustivel
                      estrategia_evolutiva.gerenciador.desativar_agente(agente)
                      agente.kill()

@@ -14,7 +14,10 @@ class Alvo(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
         self.rect.center = randint(50, 950), randint(50, 300)
+        if indice == 6:
+            self.rect.center = (630, 480)
 
         self.indice = indice
     def update(self):
-        pass#pygame.draw.rect(tela, (100,0,0), self.rect, 2)
+        if self.indice == 6:
+            pygame.draw.circle(tela, (100,0,0), self.rect.center, 6)

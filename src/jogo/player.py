@@ -2,13 +2,14 @@ from .base import Mob
 from config.configuracoes import randint, pygame, numpy, tela, cache
 from recursos import dados
 from ..rede_neural.rede_neural import RedeNeural
+from .navio import barco
 
 
 class Player(Mob):
     def __init__(self, real=False):
         Mob.__init__(self, 'recursos/imagens/sprite_rocket1.png', (1, 4), (132, 132), (0, 0), escala=(73, 110))
 
-        self.rede_neural = RedeNeural([8, 16, 3], ['relu', 'sigmoid'], 0, 0.05)
+        self.rede_neural = RedeNeural([9, 18, 3], ['relu', 'sigmoid'], 0, 0.05)
 
         self.rect.center = dados.center_agentes
         self.antigo_rect = self.rect
@@ -22,8 +23,8 @@ class Player(Mob):
         self.angulo_foquete = randint(80, 100)
         self.resistencia_do_ar = 0.01
         self.vento = dados.vento
-        self.max_combustivel = 2000
-        self.combustivel = 2000
+        self.max_combustivel = 1200
+        self.combustivel = 1200
 
         self.real = real
         self.imgs = [self.sprites[0], self.sprites[1], self.sprites[3], self.sprites[2]]
@@ -32,7 +33,7 @@ class Player(Mob):
         self.index_alvo = 0
         self.frames_fora = 0
 
-    @cache
+    #@cache
     def obter_pontos(self, centro, angulo):
         
         x1 = centro[0] + ( numpy.cos(numpy.deg2rad(angulo)) * 35 )
@@ -103,10 +104,16 @@ class Player(Mob):
             if sprite.indice == self.index_alvo:
                 distancia_x_normalizada = (self.rect.centerx - sprite.rect.centerx) / tela.get_size()[0]
                 distancia_y_normalizada = (self.rect.centery - sprite.rect.centery) / tela.get_size()[1]
-                entradas.extend([distancia_x_normalizada, distancia_y_normalizada])
-                self.rede_neural.recompensa += (1 - numpy.hypot(distancia_x_normalizada, distancia_y_normalizada)) * (self.index_alvo + 1)     
+                distancia_navio_normalizada = 0
+                if sprite.indice == 6:
+                    distancia_navio_normalizada = 1 + distancia_y_normalizada
+                    #print(distancia_navio_normalizada)
+                    pygame.draw.line(tela, (255,000,000), self.rect.center, sprite.rect.center)    
+                entradas.extend([distancia_x_normalizada, distancia_y_normalizada, distancia_navio_normalizada])
+                self.rede_neural.recompensa += (1 - numpy.hypot(distancia_x_normalizada, distancia_y_normalizada)) * ((self.index_alvo + 1) ** 1.3)
+                #pygame.draw.line(tela, (255,000,000), self.rect.center, sprite.rect.center)    
                 
-        entradas.extend([0] * (8 - len(entradas))) # preenche com 0 oq faltar
+        entradas.extend([0] * (9 - len(entradas))) # preenche com 0 oq faltar
         return entradas
 
     def aplicar_resistencia(self):
@@ -115,13 +122,13 @@ class Player(Mob):
         self.velocidade_angular -= self.velocidade_angular * self.resistencia_do_ar * 16
     
     def estabilidade_foguete(self):
-        self.angulo_foquete = self.angulo_foquete + (90 - self.angulo_foquete) * 0.003
+        self.angulo_foquete = self.angulo_foquete + (90 - self.angulo_foquete) * 0.04
     
     def aplicar_vento(self):
         self.aceleracao_x += self.vento
 
     def update(self):
-        
+        #pygame.draw.line(tela, (255, 000, 000), self.rect.center, self.raycast(self.pontos[1], self.angulo_foquete, 100))
         if not self.real:
         
             if self.rect.center == self.antigo_rect.center or self.rect.bottom < 0 or self.rect.right < 0 or self.rect.left > dados.dimensoes_janela[0]:

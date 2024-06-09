@@ -2,6 +2,7 @@ from config.configuracoes import time, pygame, tela, largura, altura, numpy as n
 from ..rede_neural import estrategia_evolutiva
 import json
 import matplotlib.pyplot as plt 
+from recursos import dados
 
 import json
 import matplotlib.pyplot as plt
@@ -63,6 +64,8 @@ class Visualizador:
         tela.blit(self.fonte.render('fps ' + str(round(self.contador_frames / delta)), True, (255, 000, 000)), (largura * 0.8, altura * 0.05))
         tela.blit(self.fonte.render(f"geração {estrategia_evolutiva.gerenciador.contador_geracoes}", True, (255, 000, 000)), (largura * 0.8, altura * 0.1))
         tela.blit(self.fonte.render(f"partida {estrategia_evolutiva.gerenciador.contador_partidas}", True, (255, 000, 000)), (largura * 0.8, altura * 0.15))
+        tela.blit(self.fonte.render(f"agentes {len(estrategia_evolutiva.gerenciador.agentes)}", True, (255, 000, 000)), (largura * 0.8, altura * 0.2))
+        tela.blit(self.fonte.render(f"sucessos {dados.sucessos}", True, (255, 000, 000)), (largura * 0.8, altura * 0.25))
 
         if (delta) > 0.6: # a cada x segundos, atualiza a taxa de frames
             self.contador_frames = 0
