@@ -42,12 +42,12 @@ def responder_a_eventos():
 for indice in range(7):
     alvo.Alvo(indice)
 
-estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(500, 6, 0.4, player.Player)
+estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(20, 6, 0.9, player.Player)
 estrategia_evolutiva.gerenciador.nova_partida()
 player.jogador = player.Player(real=True)
 colisao = colisoes.Colisoes()
 dados.vento = 0#uniform(-dados.max_vento, dados.max_vento)
-visualizador.informacoes.criar_grafico()
+#visualizador.informacoes.criar_grafico()
 
 while True: # loop principal
     

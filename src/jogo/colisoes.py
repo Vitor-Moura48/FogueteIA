@@ -34,7 +34,7 @@ class Colisoes:
                         objeto.velocidade_x = 0
                         objeto.velocidade_y = 0
                         objeto.angulo_foquete = 90
-                        objeto.rede_neural.recompensa += objeto.combustivel ** 1.4
+                        objeto.rede_neural.recompensa += objeto.combustivel ** 1.7
                         estrategia_evolutiva.gerenciador.desativar_agente(objeto)
                         objeto.kill()
                         dados.sucessos += 1

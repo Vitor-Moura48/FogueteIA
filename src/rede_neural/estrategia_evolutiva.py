@@ -54,7 +54,10 @@ class GerenciadorNeural:
         self.soma_pontuacoes = 0
         for agente in range(self.numero_players):
             self.geracao_atual[agente][0][0] /= self.partidas_por_geracao
-            self.soma_pontuacoes += self.geracao_atual[agente][0][0]
+            try:
+                self.soma_pontuacoes += self.geracao_atual[agente][0][0].item()
+            except:
+                self.soma_pontuacoes += self.geracao_atual[agente][0][0]
 
             # marca o melhor tempo da geração
             if self.geracao_atual[agente][0][0] > self.melhor_record_geracao:

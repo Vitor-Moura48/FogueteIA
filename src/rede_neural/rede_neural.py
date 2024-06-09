@@ -32,7 +32,6 @@ class RedeNeural:
     def nova_geracao(self):
 
         if estrategia_evolutiva.gerenciador.agentes_elite < estrategia_evolutiva.gerenciador.elitismo: # quantidade de cópias da melhor rede depende do valor definido
-            
             self.camadas = copy.deepcopy(estrategia_evolutiva.gerenciador.melhor_agente[1:]) # obtem os pesos do melhor indivíduo
             estrategia_evolutiva.gerenciador.agentes_elite += 1 # registra que foi feita mais uma cópia
    

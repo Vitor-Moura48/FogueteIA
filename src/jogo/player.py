@@ -110,7 +110,7 @@ class Player(Mob):
                     #print(distancia_navio_normalizada)
                     pygame.draw.line(tela, (255,000,000), self.rect.center, sprite.rect.center)    
                 entradas.extend([distancia_x_normalizada, distancia_y_normalizada, distancia_navio_normalizada])
-                self.rede_neural.recompensa += (1 - numpy.hypot(distancia_x_normalizada, distancia_y_normalizada)) * ((self.index_alvo + 1) ** 1.3)
+                self.rede_neural.recompensa += (1 - numpy.hypot(distancia_x_normalizada, distancia_y_normalizada)) * ((self.index_alvo + 1) ** 1.4)
                 #pygame.draw.line(tela, (255,000,000), self.rect.center, sprite.rect.center)    
                 
         entradas.extend([0] * (9 - len(entradas))) # preenche com 0 oq faltar
@@ -152,6 +152,7 @@ class Player(Mob):
                         self.index_imagem = 3
             else:
                 self.index_imagem = 0
+      
 
         self.gravidade()
         self.aplicar_vento()
