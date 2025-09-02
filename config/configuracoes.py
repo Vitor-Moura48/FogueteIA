@@ -1,12 +1,8 @@
 import pygame
-import numpy, math, time
-import os
-from random import randint, uniform, choice
-from functools import cache
 
 pygame.init()
 
-fps = 60
+fps = 240
 clock = pygame.time.Clock()
 
 largura = 1000
@@ -24,4 +20,4 @@ if musica:
     musica_de_fundo.set_volume(0.5)
     musica_de_fundo.play(-1)
 
-pygame.display.set_caption("Neural Pilot")
+pygame.display.set_caption("FogueteIA")

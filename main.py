@@ -1,16 +1,20 @@
-from config.configuracoes import pygame, plano_de_fundo, tela, fps, clock, uniform, randint, dimensoes_janela
+from config.configuracoes import pygame, plano_de_fundo, tela, fps, clock, dimensoes_janela
 from recursos import dados
 from src.jogo import player, visualizador, alvo, colisoes
-from src.rede_neural import estrategia_evolutiva
+from src.rede_neural.estrategia_evolutiva import GerenciadorNeural
+from random import uniform, randint
 
+import time
+from concurrent.futures import ThreadPoolExecutor
 
-def atualizar_objetos():
+executor = ThreadPoolExecutor(12)
 
-    # adiconar objetos sprites na tela
+def update_objects():
+
     dados.sprites.draw(tela)
-    dados.sprites.update()
+    list(executor.map(lambda sprite: sprite.update(), dados.sprites))
 
-def finalizar_partida():
+def reset_game_state(wind_force=0):
     dados.sucessos = 0
 
     for sprite in dados.sprites_alvos:
@@ -18,54 +22,58 @@ def finalizar_partida():
     for indice in range(7):
         alvo.Alvo(indice)
 
-    dados.vento = 0#uniform(-dados.max_vento, dados.max_vento)
+    dados.vento = uniform(-wind_force, wind_force)
 
     dados.center_agentes = (randint(int(dimensoes_janela[0] * 0.1), int(dimensoes_janela[0] * 0.9)), randint(int(dimensoes_janela[1] * 0.3), int(dimensoes_janela[1] * 0.6)))
 
     player.jogador = player.Player(real=True)
 
-    estrategia_evolutiva.gerenciador.nova_partida()
+def spawn_agents(amount):
+    for index in range(amount):
+        agent = player.Player()
+        agent.rede_neural = ES.get_nn(index)
 
+def verify_match_end():
 
-def responder_a_eventos():
-    
-    for event in pygame.event.get(): # responder a eventos
+    if len(dados.sprites_agentes) == 0: # se todos os agentes morreram, reinicia o jogo
+        reset_game_state()
 
-        if event.type == pygame.QUIT:
-            print("game over")
-            quit()
+        ES.new_match(num_agentes)
+        ES.save_generation()
+        spawn_agents(num_agentes)
 
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            for agente in dados.sprites_agentes:
-                    agente.disparar()
-
-for indice in range(7):
-    alvo.Alvo(indice)
-
-estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(20, 6, 0.9, player.Player)
-estrategia_evolutiva.gerenciador.nova_partida()
-player.jogador = player.Player(real=True)
+ES: GerenciadorNeural = GerenciadorNeural(1, 2, 0.1, 0.1, [9, 18, 3], ['relu', 'sigmoid'], True)
 colisao = colisoes.Colisoes()
-dados.vento = 0#uniform(-dados.max_vento, dados.max_vento)
-#visualizador.informacoes.criar_grafico()
+visualizador.informacoes = visualizador.Visualizador() 
+   
+num_agentes = 200
+
+reset_game_state()
+ES.load_model()
+ES.new_match(num_agentes)
+spawn_agents(num_agentes)
 
 while True: # loop principal
-    
-    if len(estrategia_evolutiva.gerenciador.agentes) == 0 and player.jogador == None:
-        finalizar_partida()
 
     tela.fill((000, 000, 000))
     tela.blit(plano_de_fundo, (0, 0)) # plano de fundo da tela
 
-    atualizar_objetos()
+    update_objects()
   
-    colisao.update()
+    for object in colisao.verificar_colisao():
+        ES.account_agent(object.rede_neural)
+        object.kill()
+        verify_match_end()
 
-    visualizador.informacoes.update()
+    visualizador.informacoes.update(ES.generation_counter, ES.matches_counter)
 
-    responder_a_eventos()
+    for event in pygame.event.get(): 
+        if event.type == pygame.QUIT:
+            print("game over")
+            quit()
 
     player.controle.mover()
 
     pygame.display.flip()  # atualizar a tela
+
     clock.tick(fps)

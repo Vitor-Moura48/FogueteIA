@@ -1,4 +1,5 @@
-from config.configuracoes import pygame, randint, dimensoes_janela
+from config.configuracoes import pygame, dimensoes_janela
+from random import randint
 
 dimensoes_janela = pygame.display.get_surface().get_size()
 

@@ -1,5 +1,7 @@
-from config.configuracoes import pygame, os, randint, tela
+from config.configuracoes import pygame, tela
 from recursos import dados
+from random import randint
+import os
 
 class Alvo(pygame.sprite.Sprite):
     def __init__(self, indice):
@@ -18,6 +20,7 @@ class Alvo(pygame.sprite.Sprite):
             self.rect.center = (630, 480)
 
         self.indice = indice
+
     def update(self):
         if self.indice == 6:
             pygame.draw.circle(tela, (100,0,0), self.rect.center, 6)

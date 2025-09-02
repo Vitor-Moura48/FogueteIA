@@ -1,5 +1,6 @@
-from config.configuracoes import pygame, os, randint, numpy, choice, uniform, tela
+from config.configuracoes import pygame, tela
 from recursos import dados
+import os
 
 class Mob(pygame.sprite.Sprite):
     def __init__(self, caminho, linhas_colunas, dimensoes, inflar, escala=None):
@@ -19,15 +20,6 @@ class Mob(pygame.sprite.Sprite):
 
         self.linhas = linhas_colunas[0]
         self.colunas = linhas_colunas[1]
- 
-    
-    def contar_index(self, taxa=0.1):
-        if self.sprite_index < ( self.linhas * self.colunas ) - 1:
-            self.image = self.sprites[int(self.sprite_index)]
-            self.sprite_index += taxa
-            return True
-        else:
-            return False
 
     def debug(self, cor=(000, 255, 000)): # mostrar o retangulo de colisao
         pygame.draw.rect(tela, cor, self.rect, 2) if self.debug else None
